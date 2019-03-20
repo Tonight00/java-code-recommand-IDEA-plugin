@@ -1,4 +1,4 @@
-## 使用指导书
+## 使用指导书(English version of User guide will be avaliable later)
 
 ### 一、安装框架
 
