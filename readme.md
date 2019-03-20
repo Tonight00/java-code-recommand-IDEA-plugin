@@ -1,22 +1,28 @@
-##使用指导书
-###一、安装框架
-####1. 安装InteliJ IDEA
+## 使用指导书
+
+### 一、安装框架
+
+#### 1. 安装InteliJ IDEA
 
 https://www.jetbrains.com/idea/
 
-####2. 安装python3.6(不能使用3.7)
+#### 2. 安装python3.6(不能使用3.7)
 
 https://www.python.org
 
-####3. 安装框架numpy、tensorflow、keras
-#####国内使用pip速度较慢，可以使用以下命令行指令安装框架
+#### 3. 安装框架numpy、tensorflow、keras
+
+##### 国内使用pip速度较慢，可以使用以下命令行指令安装框架
     pip3 install numpy -i https://pypi.tuna.tsinghua.edu.cn/simple
     pip3 install tensorflow -i https://pypi.tuna.tsinghua.edu.cn/simple
     pip3 install keras -i https://pypi.tuna.tsinghua.edu.cn/simple
-###二、初始化插件
-####1. 安装插件jar包
+### 二、初始化插件
+
+#### 1. 安装插件jar包
+
 图1
-####2. 下载python支持包并保存在合适的位置
+
+#### 2. 下载python支持包并保存在合适的位置
 
 Link1
 
