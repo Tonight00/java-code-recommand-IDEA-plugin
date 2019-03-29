@@ -173,10 +173,10 @@ public class CodeRecommanderAction extends AnAction {
     }
 
     public static String rmsymb (String rawstr) {
-        /*
-        return rawstr.replace("$$$","Var").replace("!!!","Const").replace(
-                "###","Obj").replace("~~~","meth()");*/
-        return rawstr;
+
+        return rawstr.replace("$$$","$Var").replace("!!!","$Const").replace(
+                "###","$Type").replace("~~~","$Method()");
+        //return rawstr;
     }
     public static String findpath() {
         JFileChooser chooser = new JFileChooser();
@@ -230,21 +230,6 @@ public class CodeRecommanderAction extends AnAction {
 
     }
 
-    public static void download(String url){
-        try {
-            URI uri = URI.create(url);
-            // getDesktop()返回当前浏览器上下文的 Desktop 实例。
-            //Desktop 类允许 Java 应用程序启动已在本机桌面上注册的关联应用程序，以处理 URI 或文件。
-            Desktop dp = Desktop.getDesktop();
-            //判断系统桌面是否支持要执行的功能
-            if (dp.isSupported(Desktop.Action.BROWSE)) {
-                //启动默认浏览器来显示 URI
-                dp.browse(uri);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     public static void setpath(){
         String selectedpackagepath = findpath();
@@ -272,10 +257,14 @@ public class CodeRecommanderAction extends AnAction {
         //SecondAction
 
         //ThirdAction
-        actionGroup.add(new AnAction("Continue")
+        actionGroup.add(new AnAction("Input")
         {
-            public void actionPerformed (@NotNull AnActionEvent e)
+            public void actionPerformed (AnActionEvent e)
             {
+                Editor editor = e.getData(CommonDataKeys.EDITOR);
+                Project project = e.getData(CommonDataKeys.PROJECT);
+                String s = Messages.showInputDialog(null, null, null, null, null);
+                addcode(editor, project, s);
                 if(MoveCaretToFlag(e)!=-1)
                     BuilThreeAction(e, the_line);
             }
@@ -400,16 +389,16 @@ public class CodeRecommanderAction extends AnAction {
                 "int", "char", "boolean", "double", "long", "double", "float"
         };
         String[] kwd2 = {
-                "BigInteger", "String", "Integer","Character","Double", "BigInteger<>", "HashMap<>", "Set<>", "ArrayList<>"
+                "BigInteger", "String", "Integer", "Double", "BigInteger<>", "HashMap<>", "Set<>", "ArrayList<>"
         };
         ArrayList<String> Varity = getVarity(text, kwd, 0);
         ArrayList<String> Objact = getVarity(text, kwd2, 1);
         ArrayList<String> Method = getMethod(text, Objact);
         ArrayList<String> type = getType(text,kwd, kwd2);
 
-        String path = "/Volumes/文档/大学/大学学习/大二下/冯如杯/keyofpattern.txt";
+        String path = "/Volumes/文档/大学/大学学习/大二下/PythonSupporting/PythonSupportingPackage/keyofpattern3.txt";
         File myFile = new File(path);
-        if(!myFile.exists()) { Messages.showInfoMessage("oo","xx");}
+        if(!myFile.exists()) {Messages.showInfoMessage("oo","xx");}
         try
         {
             BufferedReader readerx = new BufferedReader(new FileReader(myFile));
@@ -480,6 +469,7 @@ public class CodeRecommanderAction extends AnAction {
         */
         return ans;
     }
+
     public static void addhighword (ArrayList<String> Varity, ArrayList<String> Objact, ArrayList<String> Method, String[] fourpatterns, ArrayList<String> type, int i, ArrayList<String> ans)
     {
         String[] ppwords = fourpatterns[i].split(" ");
@@ -588,16 +578,17 @@ public class CodeRecommanderAction extends AnAction {
     {
         ArrayList<String> ans = new ArrayList<>();
         String [] words = text.split("\\s+");
-        for(int i =0 ; i<words.length;i++){
-            if(words[i].charAt(0) >='A' && words[i].charAt(0) <= 'Z' ) {
-                ans.add(words[i]);
+        for (int i =0 ; i<words.length;i++) {
+            if(words[i].length()>0 && words[i].charAt(0)>='A' && words[i].charAt(0) <='Z' ) {
+                String s  = readvalue(words[i]);
+                if(s.equals("")==false && ans.contains(words[i]) == false) ans.add(words[i]);
             }
         }
-        for (int i = 0; i <= 3; i++)
+        for (int i = 0; i <= 3 ; i++)
         {
             ans.add(kwd[i]);
         }
-        return ans;
+        return ans;//修改3
     }
 
 
@@ -606,13 +597,14 @@ public class CodeRecommanderAction extends AnAction {
 
         ArrayList<String> ans = new ArrayList<>();
         String[] lines = text.split("\n");
-        String methodpattern = "\\s*+.[a-zA-Z1-9_]+\\s*+";
+        String methodpattern = "\\s*+\\.[a-zA-Z1-9_]+\\s*+";
         for (int i = 0; i < Objact.size(); i++)
             for (int j = 0; j < lines.length; j++)
             {
                 Matcher m = getMatcher(lines[j], Objact.get(i) + methodpattern);
-                if (m.find() && ans.contains(m.group(0)+"()") == false)
+                if (m.find() && ans.contains(m.group(0)+"()") == false )
                 {
+                    int r = m.start(); if(r>0 ) { char c = lines[j].charAt(r-1);if (Character.isLetter(c)) continue; }
                     ans.add(m.group(0) + "()");
                     System.out.println("method :" + "   " + m.group(0));
                 }
@@ -631,7 +623,7 @@ public class CodeRecommanderAction extends AnAction {
         HashMap<String, String> map2 = new HashMap<>();
 
         if (model == 1) GetDiy(lines, keywords);
-        else { for (int i = 0; i < kwd.length; i++) keywords.add(kwd[i]);}
+        else { for (int i = 0; i < kwd.length; i++) keywords.add(kwd[i]);}//修改1
         getbasevarity(map, map2, base, keywords, lines, model);
 
 
@@ -757,16 +749,16 @@ public class CodeRecommanderAction extends AnAction {
             String[] words = lines[i].split("\\s+");
             for (int k = 0; k < words.length; k++)
             {
-                if (words[k].charAt(0)>= 'A' && words[k].charAt(0) <= 'Z' )
+                if (words[k].length()>0 && words[k].charAt(0)>='A' &&words[k].charAt(0) <='Z' )
                 {
                     String x = readvalue(words[k]);
-                    if (x.equals("") == false) keywords.add(words[k]);
+                    if (x.equals("") == false && keywords.contains(words[k]) ==false) keywords.add(words[k]);
                     break;
                 }
             }
         }
     }
-
+    //修改2
 
     public static String readvalue (String word)
     {
@@ -786,6 +778,8 @@ public class CodeRecommanderAction extends AnAction {
             String x = "\\([<>a-zA-Z0-9\\._]*+[\\)]*+";
             Matcher m = getMatcher(word, x);
             if (m.find(i)) return "";
+            if(word.contains("(")) return "";
+            if(word.contains(")")) return "";
         }
         if (value.equals("implements") || value.equals("extends") || value.equals("interface") || value.equals("abstract"))
             return "";
